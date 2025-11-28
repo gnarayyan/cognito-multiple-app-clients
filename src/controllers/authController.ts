@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
 import * as cognitoService from '../services/cognitoService';
-import { ClientType } from '../lib/types';
-
-const getClientType = (req: Request): ClientType => {
-  const type = req.headers['x-client-type'];
-  if (type === 'mobile') return 'mobile';
-  return 'web';
-};
+import { ClientType, getClientType } from '../utils/getClientType';
+import {
+  getAccessToken,
+  getSubFromAccessToken,
+  webClientTokenVerifier,
+} from '../utils/tokenUtils';
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -61,10 +60,23 @@ export const refreshToken = async (req: Request, res: Response) => {
   try {
     const { refreshToken, username } = req.body;
     const clientType = getClientType(req);
+
+    let correctedUsername = username;
+    if (ClientType.web === clientType) {
+      const token = getAccessToken(req);
+      if (token) {
+        const sub = getSubFromAccessToken(token);
+        if (sub) {
+          correctedUsername = sub;
+        }
+      }
+
+      if (username === correctedUsername) throw 'Invalid access token';
+    }
     const result = await cognitoService.refreshToken(
       clientType,
       refreshToken,
-      username
+      correctedUsername
     );
     res.json({
       message: 'Token refresh successful',
