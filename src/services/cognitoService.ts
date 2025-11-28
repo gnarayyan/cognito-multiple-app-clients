@@ -6,14 +6,15 @@ import {
   ConfirmSignUpCommand,
   AuthFlowType,
 } from '@aws-sdk/client-cognito-identity-provider';
-import * as crypto from 'crypto';
 import { config } from '../config/env';
-import { ClientConfig, ClientType } from '../lib/types';
+import { ClientConfig } from '../lib/types';
+import { ClientType } from '../utils/getClientType';
+import { calculateSecretHash } from '../utils/calculateSecretHash';
 
 const client = new CognitoIdentityProviderClient({ region: config.awsRegion });
 
 const getClientConfig = (type: ClientType): ClientConfig => {
-  if (type === 'mobile') {
+  if (type === ClientType.mobile) {
     return {
       clientId: config.mobileClientId,
     };
@@ -22,17 +23,6 @@ const getClientConfig = (type: ClientType): ClientConfig => {
     clientId: config.webClientId,
     clientSecret: config.webClientSecret,
   };
-};
-
-const calculateSecretHash = (
-  clientId: string,
-  clientSecret: string,
-  username: string
-): string => {
-  return crypto
-    .createHmac('sha256', clientSecret)
-    .update(username + clientId)
-    .digest('base64');
 };
 
 export const signUp = async (
@@ -131,6 +121,7 @@ export const refreshToken = async (
 export const logout = async (accessToken: string) => {
   const command = new GlobalSignOutCommand({
     AccessToken: accessToken,
+
   });
   return client.send(command);
 };
