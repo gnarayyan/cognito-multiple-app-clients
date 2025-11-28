@@ -1,0 +1,41 @@
+        Access  Refresh
+Mobile  5m      60m
+Web     10m     70m
+
+# Access Token Expire
+Mobile Access: 11:43   ----> 11:48 ma expire hunxa  ✅
+
+Web Access: 11:57   ----> 12:07 ma expire hunxa  ✅
+
+
+# Refresh Token Expire
+Mobile Refresh: 12:43   ----> 12:43 ma expire hunxa  ✅
+
+Web Refresh: 11:57  ----> 01:07 ma expire hunxa  ✅
+
+
+# Logging out from mobile should not logout from web ❌
+
+# Logging out from web should not logout from mobile  ❌
+
+
+# Signup from mobile & verify from web ✅
+
+# Ensure exact timing for access & refresh 
+
+
+# Refreshing One token will not invalidate other token
+
+
+# Prevent from Mismatch accesBetween client type ✅
+Yes it throws error `Token verification failed: CognitoJwtInvalidClientIdError: Client ID not allowed:  from middleware
+
+
+
+
+
+
+# By default device trackig is enabled
+As it turns out, it wasn't really an invalid refresh token; at least in the sense of the object itself.
+
+If you have device tracking enabled, then you must pass the users device key in the AuthParameters (which I wasn't doing).
